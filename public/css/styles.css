@@ -199,6 +199,11 @@ footer p span {
   margin-top: 10px;
 }
 
+.btn-buy:hover {
+    background: #0e259a;
+    font-weight: bold;
+}
+
 .quantity-selector {
   display: flex;
   align-items: center;
@@ -365,7 +370,7 @@ nav ul li a {
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    margin-right: 10px;
+    margin: 10px;
 }
 
 .btn-empty:hover {
