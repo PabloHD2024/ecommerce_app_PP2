@@ -1,84 +1,119 @@
-// const cartItemsContainer = document.getElementById('cart-items');
-// const cartTotalElement = document.getElementById('cart-total');
-
-// function renderCart() {
-//     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-//     cartItemsContainer.innerHTML = '';
-//     let total = 0;
-
-//     cart.forEach((item, index) => {
-//         total += item.price * item.quantity;
-//         cartItemsContainer.innerHTML += `
-//             <div class="cart-item">
-//                 <img src="${item.image}" width="50">
-//                 <p>${item.name} (x${item.quantity})</p>
-//                 <p>$${item.price * item.quantity}</p>
-//                 <button onclick="removeItem(${index})">Eliminar</button>
-//             </div>
-//         `;
-//     });
-
-//     cartTotalElement.innerText = `$${total}`;
-// }
-
-// function removeItem(index) {
-//     let cart = JSON.parse(localStorage.getItem('cart'));
-//     cart.splice(index, 1);
-//     localStorage.setItem('cart', JSON.stringify(cart));
-//     renderCart();
-//     updateCartCount();
-// }
-
-// renderCart();
-
-// document.getElementById('btn-checkout').addEventListener('click', () => {
-//     const cart = JSON.parse(localStorage.getItem('cart'));
-//     if (cart && cart.length > 0) {
-//         alert('Redirigiendo a la pasarela de pago...');
-//         // Aquí es donde en el futuro enviarás el JSON a tu servidor Node.js
-//     } else {
-//         alert('El carrito está vacío');
-//     }
-// });
-
-// document.getElementById('btn-empty').addEventListener('click', () => {
-//     if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
-//         localStorage.removeItem('cart'); // Borra los datos
-//         renderCart();                    // Vuelve a dibujar el carrito (ahora vacío)
-//         updateCartCount();               // Actualiza el icono del nav
-//     }
-// });
-
 const cartItemsContainer = document.getElementById('cart-items');
 const cartTotalElement = document.getElementById('cart-total');
 
 function renderCart() {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (!cartItemsContainer) return;
+
     cartItemsContainer.innerHTML = '';
     let total = 0;
 
     if (cart.length === 0) {
-        cartItemsContainer.innerHTML = '<p>El carrito está vacío</p>';
+        cartItemsContainer.innerHTML = '<div class="empty-msg">Tu carrito está vacío</div>';
     } else {
         cart.forEach((item, index) => {
             total += item.price * item.quantity;
-            cartItemsContainer.innerHTML += `
-                <div class="cart-item">
-                    <img src="${item.image}" width="50">
-                    <div class="item-details">
-                        <p><strong>${item.name}</strong></p>
-                        <p>Cantidad: ${item.quantity}</p>
-                        <p>Subtotal: $${item.price * item.quantity}</p>
-                    </div>
-                    <button class="btn-remove" onclick="removeItem(${index})">Eliminar</button>
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <img src="${item.image}" alt="${item.name}">
+                <div class="item-info">
+                    <h3>${item.name}</h3>
+                    <p class="item-unit-price">$${item.price.toFixed(2)} c/u</p>
                 </div>
+                <div class="item-controls">
+                    <div class="quantity-selector">
+                        <button class="qty-btn" data-index="${index}" data-delta="-1">-</button>
+                        <input type="number" class="qty-input" value="${item.quantity}" min="1" data-index="${index}">
+                        <button class="qty-btn" data-index="${index}" data-delta="1">+</button>
+                    </div>
+                    <p class="item-subtotal" id="subtotal-${index}">$${(item.price * item.quantity).toFixed(2)}</p>
+                </div>
+                <button class="btn-remove" data-index="${index}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
             `;
+            cartItemsContainer.appendChild(div);
+        });
+
+        // Listeners para botones +/-
+        cartItemsContainer.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                const delta = parseInt(btn.dataset.delta);
+                changeQty(index, delta);
+            });
+        });
+
+        // Listener para edición manual del input
+        cartItemsContainer.querySelectorAll('.qty-input').forEach(input => {
+            input.addEventListener('change', () => {
+                const index = parseInt(input.dataset.index);
+                let newQty = parseInt(input.value);
+
+                if (isNaN(newQty) || newQty < 1) {
+                    newQty = 1;
+                    input.value = 1;
+                }
+
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cart[index]) {
+                    cart[index].quantity = newQty;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateSubtotal(index, cart[index].price, newQty);
+                    updateTotal();
+                    updateCartCount();
+                }
+            });
+        });
+
+        // Listeners para botones de eliminar
+        cartItemsContainer.querySelectorAll('.btn-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                removeItem(index);
+            });
         });
     }
-    cartTotalElement.innerText = `$${total}`;
+
+    cartTotalElement.innerText = `$${total.toFixed(2)}`;
 }
 
-// Función para eliminar un solo item
+// Actualiza solo el subtotal de un item sin re-renderizar todo
+function updateSubtotal(index, price, quantity) {
+    const subtotalEl = document.getElementById(`subtotal-${index}`);
+    if (subtotalEl) {
+        subtotalEl.innerText = `$${(price * quantity).toFixed(2)}`;
+    }
+}
+
+// Recalcula y actualiza el total general
+function updateTotal() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    if (cartTotalElement) {
+        cartTotalElement.innerText = `$${total.toFixed(2)}`;
+    }
+}
+
+// Cambia la cantidad con los botones +/-
+window.changeQty = function(index, delta) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    if (cart[index]) {
+        cart[index].quantity += delta;
+
+        if (cart[index].quantity < 1) {
+            removeItem(index);
+            return;
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+        updateCartCount();
+    }
+};
+
 window.removeItem = function(index) {
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     cart.splice(index, 1);
@@ -87,32 +122,20 @@ window.removeItem = function(index) {
     updateCartCount();
 };
 
-// Función para vaciar TODO el carrito
-document.getElementById('btn-empty').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
-        localStorage.removeItem('cart');
-        renderCart();
-        updateCartCount();
-    }
-});
-
-// Función para el contador del nav
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const countElement = document.getElementById('cart-count');
-    if (countElement) {
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        if (totalItems > 0) {
-            countElement.innerText = totalItems;
-            countElement.style.display = 'flex';
-        } else {
-            countElement.style.display = 'none';
-        }
-    }
-}
-
-// Inicialización
+// Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     renderCart();
     updateCartCount();
+
+    // Botón vaciar carrito
+    const btnEmpty = document.getElementById('btn-empty');
+    if (btnEmpty) {
+        btnEmpty.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que querés vaciar el carrito?')) {
+                localStorage.removeItem('cart');
+                renderCart();
+                updateCartCount();
+            }
+        });
+    }
 });
