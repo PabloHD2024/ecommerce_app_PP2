@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af81512a-e9a3-46ff-8691-2b31b544c806" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/html/cart.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/cart.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/html/contacto.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/contacto.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/html/productos.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/html/productos.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
-    </list>
+    <list default="true" id="af81512a-e9a3-46ff-8691-2b31b544c806" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -63,7 +55,7 @@
       <option name="presentableId" value="Default" />
       <updated>1777499852227</updated>
       <workItem from="1777499860061" duration="11095000" />
-      <workItem from="1777545272568" duration="906000" />
+      <workItem from="1777545272568" duration="975000" />
     </task>
     <servers />
   </component>
